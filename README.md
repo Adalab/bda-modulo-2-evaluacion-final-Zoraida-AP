@@ -1,7 +1,7 @@
 # bda-modulo-2-evaluacion-final-Zoraida-AP
 bda-modulo-2-evaluacion-final-Zoraida-AP created by GitHub Classroom
 
-# Proyecto de Consulta de Películas
+# Proyecto de Exploración de Datos de Películas: Consultas SQL 
 
 Este proyecto consiste en una serie de consultas SQL diseñadas para interactuar con una base de datos de películas.
 
