@@ -1,4 +1,4 @@
-/* EJERCICIO 1: Seleccionamos todos los nombres de las pelíclas sin que aparezcan duplicados
+/* EJERCICIO 1: Selecciona todos los nombres de las pelíclas sin que aparezcan duplicados
 
 -En este caso no es necesario usar la funcion DISTINCT para evitar duplicados, debido al uso de PK única, ya que identifica de manera única cada registro en una tabla.
  */
@@ -7,16 +7,16 @@ SELECT title AS Títulos
 FROM film;
 
 /*Podemos comprobar tambien con una query que no existen títulos repetidos.
--Usamos COUNT(title) para contar el número de veces que aparece cada título en la tabla y HAVING para Filtra el resultado que nos devolverá el GROUP BY y mostrar solo los títulos que aparecen más de una vez*/
+-Usamos la funcion COUNT() para contar el número de veces que aparece cada título en la tabla y HAVING para filtrar el resultado que nos devolverá el GROUP BY, mostrando así solo los títulos que aparecen más de una vez*/
 
 SELECT title, COUNT(title) AS títulos_repetidos
 FROM film
 GROUP BY title
 HAVING títulos_repetidos > 1;
 
-/* EJERCICIO 2: Mostramos los nombres de todas las películas que tengan una clasificación "PG-13"
+/* EJERCICIO 2: Muestra los nombres de todas las películas que tengan una clasificación "PG-13"
 
--Filtramos películas con clasificación "PG-13" usando la claúsula WHERE que nos permite especificar esta condicion.
+-Filtramos películas con clasificación "PG-13" usando la claúsula WHERE que nos permite especificar esta condición.
 */
 
 SELECT title AS Títulos, rating AS Clasificación
@@ -66,7 +66,7 @@ ORDER BY Nombre_actor ASC;
 /* EJERCICIO 7: Encuentra los nombres de los actores que tengan un actor_id entre 10 y 20.
 
 - Usamos  funcion CONCAT para combinar combinar nombre y apellido y que nos lo muestre en una cola columna.
-- Usamos las claúslas WHERE y BETWEEN para filtrar actores cuyos actor_id estén entre 10 y 20.
+- Usamos las claúsulas WHERE y BETWEEN para filtrar actores cuyos actor_id estén entre 10 y 20.
 - Con ORDER BY ordenamos los resultados de menos a mayor actor_id 
  */
 
@@ -166,7 +166,7 @@ SELECT title AS Título
 FROM film
 WHERE description LIKE "%dog%" OR description LIKE "%cat%";
 
-/*  EJERCICIO 15. Hay algún actor o actriz que no apareca en ninguna película en la tabla film_actor.
+/*  EJERCICIO 15. ¿Hay algún actor o actriz que no apareca en ninguna película en la tabla film_actor?
  
 - Realizamos un LEFT JOIN entre actor y film_actor, para que se muestren todos los registros de la tabla actor y solo aquellos registros de film_actor que tengan un actor_id coincidente. Si un actor no tiene coincidencias en film_actor, los campos provenientes de esta tabla aparecerán como NULL
 - Filtramos el resultado con WHERE para incluir solo aquellos actores para los cuales no existe un registro correspondiente en film_actor, identificando así los actores que no han aparecido en ninguna película.
@@ -180,7 +180,7 @@ WHERE fa.film_id IS NULL
 GROUP BY Nombre_actor;
 
 /* En este caso, a consulta no nos devuelve ningún nombre, lo que quiere decir que no hay ningún actor/actriz que no aparezca en ninguna película. 
-Para comprobarlo, realizamos un LEFT JOIN, para unir al nombre del actor las id de las películas en film actor, de manera que podemos ver que realmente no hay ningún valor de IDpelícula NULL para ningún actor.
+Para comprobarlo, realizamos un LEFT JOIN, para unir al nombre del actor a las id de las películas en film actor, de manera que podemos ver que realmente no hay ningún valor de IDpelícula NULL para ningún actor.
 */
 
 SELECT CONCAT(a.first_name, " ", a.last_name) AS Nombre_actor, fa.film_id AS iD_Película
@@ -308,22 +308,19 @@ WHERE r.rental_id IN ( SELECT rental_id
 /* EJERCICIO 23:  Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría "Horror".Utiliza una subconsulta para encontrar los actores que han actuado en películas de la categoría "Horror" y luego exclúyelos de la lista de actores.
 
 - Realizamos, en primer lugar, una subconsulta para identificar actores que han participado en películas de la categoría "Horror":
-	- Concatenamos con CONCAT() nombre y apellidos de los actores para que nos los muestre en una columna.
-    - Realizamos tres INNER JOIN: 
-		- Entre actor y film_actor, para conectar actores con sus películas.
+	    - Realizamos tres INNER JOIN: 
+		- Entre film_actor y film, para conectar actores con sus películas.
         - Entre film y film_category para acceder a la categoría de cada película.
-        - Entre film_category  y category para filtrar por la categoría "Horror".ALTER
+        - Entre film_category  y category para contectar con los nombres de las categorías y  filtrar por la categoría "Horror".
 	- Filtramos con WHERE para restringir la búsqueda a la categoría "Horror".
 */
 
-SELECT CONCAT(a.first_name, " ", a.last_name) AS Nombre_actor
-FROM actor AS a
-INNER JOIN film_actor AS fa ON  a.actor_id = fa.actor_id  /* conectamos los actores con las películas */ 
+SELECT fa.actor_id
+FROM film_actor AS fa 
 INNER JOIN film AS f ON fa.film_id = f.film_id /* para acceder a los detalles las películas */ 
 INNER JOIN film_category AS fc ON f.film_id = fc.film_id /* conectamos los actores con las películas */ 
 INNER JOIN category AS c ON fc.category_id = c.category_id /* para relacionar las películas con su categoría */ 
-WHERE c.name = 'Horror'
-ORDER BY Nombre_actor ASC; 
+WHERE c.name = 'Horror';
 
 /* Ahora realizamos la consulta principal,  incluyendo nuestra subconsulta anterior para encontrar los nombres de los actores que no han actuado en ninguna pelicula de Horror:
 - Volvemos a concatenar los nombres y apellidos de los actores con CONCAT() para que nos los devuelva en una sola columna.
@@ -333,24 +330,19 @@ SELECT CONCAT(a.first_name, " ", a.last_name) AS Nombre_actor
 FROM actor AS a
 WHERE a.actor_id NOT IN (SELECT fa.actor_id 
 						FROM film_actor AS fa 
-						INNER JOIN film AS f ON fa.film_id = f.film_id /* para acceder a los detalles las películas */ 
-						INNER JOIN film_category AS fc ON f.film_id = fc.film_id /* conectamos los actores con las películas */ 
-						INNER JOIN category AS c ON fc.category_id = c.category_id /* para relacionar las películas con su categoría */ 
+						INNER JOIN film AS f ON fa.film_id = f.film_id  
+						INNER JOIN film_category AS fc ON f.film_id = fc.film_id 
+						INNER JOIN category AS c ON fc.category_id = c.category_id 
 						WHERE c.name = 'Horror')
 ORDER BY Nombre_Actor ASC;
 
-SELECT fa.actor_id 
-FROM film_actor AS fa 
-INNER JOIN film AS f ON fa.film_id = f.film_id /* para acceder a los detalles las películas */ 
-INNER JOIN film_category AS fc ON f.film_id = fc.film_id /* conectamos los actores con las películas */ 
-INNER JOIN category AS c ON fc.category_id = c.category_id /* para relacionar las películas con su categoría */ 
-WHERE c.name = 'Horror';
 
 /* EJERCICIO 24.BONUS: Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla film.
 
 - Hacemos dos conexiones INNER JOIN: 
 	- Una para conectar la tabla film con film_category, que actúa como una tabla intermedia. Esto permite relacionar cada película con su(s) categoría(s) asociadas.
-	- Otra para conectar film_category con la tabla category, que contiene los nombres de las categorías. Esto permite filtrar las películas según el nombre de la categoría.
+	- Otra para conectar film_category con la tabla category, que contiene los nombres de las categorías. 
+    Esto permite filtrar las películas según el nombre de la categoría.
 - Con la claúsla WHERE filtramos:
 	- Por el nombre de categoria 'Comedy', asegurándonos de que solo se seleccionen las películas que pertenecen a esta categoría.
     - Y por la duración, estableciendo que la duración de las películas seleccionadas debe ser mayor de 180 min.
@@ -359,8 +351,8 @@ WHERE c.name = 'Horror';
 
 SELECT f.title AS Título
 FROM film AS f
-INNER JOIN film_category AS fc ON f.film_id = fc.film_id /* para relacionar las películas con su categoría */ 
-INNER JOIN category AS c ON fc.category_id = c.category_id /* para filtrar las categorias por nombre */ 
+INNER JOIN film_category AS fc ON f.film_id = fc.film_id 
+INNER JOIN category AS c ON fc.category_id = c.category_id  
 WHERE c.name = 'Comedy' AND f.length > 180;
 
 /* EJERCICIO 25. BONUS: Encuentra todos los actores que han actuado juntos en al menos una película. La consulta debe mostrar el nombre y apellido de los actores y el número de películas en las que han actuado juntos.
